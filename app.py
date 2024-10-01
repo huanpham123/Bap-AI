@@ -20,8 +20,11 @@ def chat():
     message = data.get('message')
 
     if message:
-        # Lấy URL API từ biến môi trường hoặc giá trị mặc định
-        api_url = os.getenv('API_URL', f"https://deku-rest-api.gleeze.com/api/gpt-4o?q={message}&uid=unique_id")
+        # Lấy URL cơ bản từ biến môi trường
+        base_api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
+        
+        # Tạo URL đầy đủ với message và uid
+        api_url = f"{base_api_url}?q={message}&uid=unique_id"
         
         try:
             # Gọi API và nhận phản hồi
