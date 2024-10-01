@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import logging
-import os  # Thêm import os để sử dụng biến môi trường
+import os  # Import os để sử dụng biến môi trường
 
 app = Flask(__name__)
 
@@ -20,16 +20,17 @@ def chat():
     message = data.get('message')
 
     if message:
-        # Lấy URL API từ biến môi trường
+        # Lấy URL API từ biến môi trường hoặc giá trị mặc định
         api_url = os.getenv('API_URL', f"https://deku-rest-api.gleeze.com/api/gpt-4o?q={message}&uid=unique_id")
         
-        app.logger.debug(f"Sending request to API: {api_url}")  # Log API URL
-
         try:
+            # Gọi API và nhận phản hồi
             response = requests.get(api_url)
 
+            # Log phản hồi từ API
             app.logger.debug(f"API Response: {response.text}")
 
+            # Kiểm tra mã trạng thái phản hồi
             if response.status_code == 200:
                 try:
                     response_data = response.json()
@@ -40,9 +41,9 @@ def chat():
             else:
                 app.logger.error(f"API returned an error: {response.status_code} {response.text}")
                 return jsonify({'error': f'API error: {response.status_code}'})
-        except Exception as e:
-            app.logger.error(f"Error: {str(e)}")
-            return jsonify({'error': str(e)})
+        except requests.exceptions.RequestException as e:
+            app.logger.error(f"Request failed: {str(e)}")
+            return jsonify({'error': 'Error connecting to the API.'})
 
     return jsonify({'error': 'No message provided'})
 
