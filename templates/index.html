@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cỏ 4 lá AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #141e30, #243b55);
+            font-family: "Roboto", sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            width: 90%; /* Thay đổi thành 90% */
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            transition: all 0.3s ease; /* Thêm hiệu ứng chuyển tiếp */
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(50, 50, 50, 0.8);
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin: 0;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .chat-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 25px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            display: inline-block;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #0073ff, #00d4ff);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+            box-shadow: 0 5px 15px rgba(0, 115, 255, 0.3);
+        }
+
+        .message.bot {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .code-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 15px;
+            background: rgba(50, 50, 50, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-box {
+            flex-grow: 1;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            font-size: 16px;
+            outline: none;
+            resize: none;
+            height: 50px;
+            overflow-y: auto;
+        }
+
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #0073ff, #00d4ff);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin-left: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: linear-gradient(135deg, #0060e0, #00b0e0);
+        }
+
+        .typing {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            margin: 0 2px;
+            background-color: white;
+            border-radius: 50%;
+            animation: blink 1s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .chat-header h1 {
+                font-size: 20px;
+            }
+            .input-box {
+                font-size: 14px;
+            }
+            .send-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>ChatBot AI</h1>
+        </div>
+        <div class="chat-content" id="chat-content">
+            <div class="message bot">Chào! Tôi có thể giúp gì cho bạn?</div>
+        </div>
+        <div class="chat-input-container">
+            <textarea id="user_input" placeholder="Gửi câu hỏi cho Chat" class="input-box"></textarea>
+            <button id="send_button" class="send-button">Gửi</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.js"></script>
+    <script>
+        document.getElementById('send_button').addEventListener('click', async function() {
+            const userInput = document.getElementById('user_input').value;
+            const chatContent = document.getElementById('chat-content');
+
+            if (userInput.trim() === '') {
+                return;
+            }
+
+            // Tạo tin nhắn của người dùng
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.textContent = userInput;
+            chatContent.appendChild(userMessage);
+            chatContent.scrollTop = chatContent.scrollHeight;
+
+            // Xóa nội dung ô nhập liệu
+            document.getElementById('user_input').value = '';
+
+            // Hiển thị chỉ báo đang gõ
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing';
+            typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+            chatContent.appendChild(typingIndicator);
+            chatContent.scrollTop = chatContent.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                chatContent.removeChild(typingIndicator);
+
+                // Tạo tin nhắn của bot và hiển thị ngay lập tức
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot';
+
+                // Kiểm tra nếu phản hồi chứa mã nguồn
+                if (data.reply.startsWith('```')) {
+                    // Nếu có mã nguồn, hiển thị trong khung
+                    const codeBlock = document.createElement('div');
+                    codeBlock.className = 'code-container';
+                    codeBlock.innerHTML = `<pre><code class="language-javascript">${Prism.highlight(data.reply.slice(3, -3), Prism.languages.javascript, 'javascript')}</code></pre>`;
+                    botMessage.appendChild(codeBlock);
+                } else {
+                    // Thay thế để in đậm nội dung quan trọng
+                    const formattedReply = data.reply.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+                    botMessage.innerHTML = formattedReply; // Hiển thị nội dung phản hồi bình thường
+                }
+
+                chatContent.appendChild(botMessage);
+                chatContent.scrollTop = chatContent.scrollHeight;
+
+            } catch (error) {
+                chatContent.removeChild(typingIndicator);
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message bot';
+                errorMessage.textContent = 'Error: ' + error.message;
+                chatContent.appendChild(errorMessage);
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+        });
+
+        // Thêm chức năng gửi khi nhấn Enter
+        document.getElementById('user_input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('send_button').click();
+            }
+        });
+    </script>
+</body>
+</html>
