@@ -19,20 +19,20 @@ def chat():
     data = request.json
     message = data.get('message')
 
-    # Log câu hỏi
-    app.logger.debug(f"Message received: {message}")
-
     if message:
         # Lấy URL API từ biến môi trường
-        base_api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
-        api_url = f"{base_api_url}?q={message}&uid=unique_id"
+        api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
+        api_url = f"{api_url}?q={message}&uid=unique_id"
         
         try:
+            # Gọi API và nhận phản hồi
             response = requests.get(api_url)
 
             # Log phản hồi từ API
+            app.logger.debug(f"API URL: {api_url}")
             app.logger.debug(f"API Response: {response.text}")
 
+            # Kiểm tra mã trạng thái phản hồi
             if response.status_code == 200:
                 try:
                     response_data = response.json()
