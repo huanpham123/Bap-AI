@@ -20,39 +20,35 @@ def chat():
     message = data.get('message')
 
     if message:
-        # Lấy URL API từ biến môi trường
-        api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
-        api_url = f"{api_url}?q={message}&uid=unique_id"
+        # Lấy URL cơ bản từ biến môi trường
+        base_api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
+        
+        # Tạo URL đầy đủ với message và uid
+        api_url = f"{base_api_url}?q={message}&uid=unique_id"
         
         try:
             # Gọi API và nhận phản hồi
             response = requests.get(api_url)
 
             # Log phản hồi từ API
-            app.logger.debug(f"API URL: {api_url}")
             app.logger.debug(f"API Response: {response.text}")
 
             # Kiểm tra mã trạng thái phản hồi
             if response.status_code == 200:
                 try:
                     response_data = response.json()
-                    # Kiểm tra nếu có kết quả
-                    reply = response_data.get('result')
-                    if reply:
-                        return jsonify({'reply': reply})
-                    else:
-                        return jsonify({'reply': 'Không có phản hồi từ API.'})
+                    return jsonify({'reply': response_data.get('result', 'No answer provided')})
                 except ValueError:
                     app.logger.error("Invalid JSON response from API.")
-                    return jsonify({'error': 'Đã nhận được phản hồi không hợp lệ từ API.'})
+                    return jsonify({'error': 'Invalid response from API.'})
             else:
                 app.logger.error(f"API returned an error: {response.status_code} {response.text}")
-                return jsonify({'error': f'Lỗi từ API: {response.status_code}'})
+                return jsonify({'error': f'API error: {response.status_code}'})
         except requests.exceptions.RequestException as e:
             app.logger.error(f"Request failed: {str(e)}")
-            return jsonify({'error': 'Lỗi khi kết nối đến API.'})
+            return jsonify({'error': 'Error connecting to the API.'})
 
-    return jsonify({'error': 'Không có tin nhắn nào được cung cấp.'})
+    return jsonify({'error': 'No message provided'})
 
 if __name__ == '__main__':
     app.run(debug=True)
