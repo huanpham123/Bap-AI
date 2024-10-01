@@ -211,55 +211,44 @@
             chatContent.appendChild(typingIndicator);
             chatContent.scrollTop = chatContent.scrollHeight;
 
+            // Gọi API
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: userInput })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
+                // Xóa chỉ báo đang gõ
                 chatContent.removeChild(typingIndicator);
 
-                // Tạo tin nhắn của bot và hiển thị ngay lập tức
-                const botMessage = document.createElement('div');
-                botMessage.className = 'message bot';
+                // Xử lý phản hồi
+                const data = await response.json();
+                const botReply = document.createElement('div');
+                botReply.className = 'message bot';
 
-                // Kiểm tra nếu phản hồi chứa mã nguồn
-                if (data.reply.startsWith('```')) {
-                    // Nếu có mã nguồn, hiển thị trong khung
-                    const codeBlock = document.createElement('div');
-                    codeBlock.className = 'code-container';
-                    codeBlock.innerHTML = `<pre><code class="language-javascript">${Prism.highlight(data.reply.slice(3, -3), Prism.languages.javascript, 'javascript')}</code></pre>`;
-                    botMessage.appendChild(codeBlock);
+                if (response.ok) {
+                    botReply.textContent = data.reply || 'Không có phản hồi.';
                 } else {
-                    // Thay thế để in đậm nội dung quan trọng
-                    const formattedReply = data.reply.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-                    botMessage.innerHTML = formattedReply; // Hiển thị nội dung phản hồi bình thường
+                    botReply.textContent = `Lỗi: ${data.error || 'Có lỗi xảy ra.'}`;
                 }
 
-                chatContent.appendChild(botMessage);
+                chatContent.appendChild(botReply);
                 chatContent.scrollTop = chatContent.scrollHeight;
-
             } catch (error) {
+                console.error('Error:', error);
                 chatContent.removeChild(typingIndicator);
                 const errorMessage = document.createElement('div');
                 errorMessage.className = 'message bot';
-                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.textContent = 'Có lỗi xảy ra trong quá trình kết nối.';
                 chatContent.appendChild(errorMessage);
                 chatContent.scrollTop = chatContent.scrollHeight;
             }
         });
 
-        // Thêm chức năng gửi khi nhấn Enter
+        // Tự động gửi khi nhấn Enter
         document.getElementById('user_input').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
+            if (event.key === 'Enter') {
                 event.preventDefault();
                 document.getElementById('send_button').click();
             }
