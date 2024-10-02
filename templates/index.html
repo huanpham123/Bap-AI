@@ -187,79 +187,62 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.js"></script>
     <script>
     document.getElementById('send_button').addEventListener('click', async function() {
-        const userInput = document.getElementById('user_input').value;
-        const chatContent = document.getElementById('chat-content');
+    const userInput = document.getElementById('user_input').value;
+    const chatContent = document.getElementById('chat-content');
 
-        if (userInput.trim() === '') {
-            return;
+    if (userInput.trim() === '') {
+        return;
+    }
+
+    // Tạo tin nhắn của người dùng
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.textContent = userInput;
+    chatContent.appendChild(userMessage);
+    chatContent.scrollTop = chatContent.scrollHeight;
+
+    // Xóa nội dung ô nhập liệu
+    document.getElementById('user_input').value = '';
+
+    // Hiển thị chỉ báo đang gõ
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'typing';
+    typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+    chatContent.appendChild(typingIndicator);
+    chatContent.scrollTop = chatContent.scrollHeight;
+
+    // Gọi API
+    try {
+        const response = await fetch(`https://deku-rest-api.gleeze.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=unique_id`, {
+            method: 'GET', // Thay đổi thành GET
+        });
+
+        // Xóa chỉ báo đang gõ
+        chatContent.removeChild(typingIndicator);
+
+        // Xử lý phản hồi
+        const data = await response.json();
+        const botReply = document.createElement('div');
+        botReply.className = 'message bot';
+
+        if (response.ok) {
+            botReply.textContent = data.result || 'Không có phản hồi.';
+        } else {
+            botReply.textContent = `Lỗi: ${data.error || 'Có lỗi xảy ra.'}`;
         }
 
-        // Tạo tin nhắn của người dùng
-        const userMessage = document.createElement('div');
-        userMessage.className = 'message user';
-        userMessage.textContent = userInput;
-        chatContent.appendChild(userMessage);
+        chatContent.appendChild(botReply);
         chatContent.scrollTop = chatContent.scrollHeight;
-
-        // Xóa nội dung ô nhập liệu
-        document.getElementById('user_input').value = '';
-
-        // Hiển thị chỉ báo đang gõ
-        const typingIndicator = document.createElement('div');
-        typingIndicator.className = 'typing';
-        typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
-        chatContent.appendChild(typingIndicator);
+    } catch (error) {
+        console.error('Error:', error);
+        chatContent.removeChild(typingIndicator);
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'message bot';
+        errorMessage.textContent = 'Có lỗi xảy ra trong quá trình kết nối.';
+        chatContent.appendChild(errorMessage);
         chatContent.scrollTop = chatContent.scrollHeight;
-
-        // Gọi API
-        try {
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userInput })
-            });
-
-            // Xóa chỉ báo đang gõ
-            chatContent.removeChild(typingIndicator);
-
-            // Xử lý phản hồi
-            const data = await response.json();
-            const botReply = document.createElement('div');
-            botReply.className = 'message bot';
-
-            // Thay đổi cách trả lời
-            if (response.ok) {
-                // Kiểm tra nội dung phản hồi và điều chỉnh để tránh thông tin tiêu cực
-                if (data.reply) {
-                    // Cắt ngắn và đơn giản hóa câu trả lời
-                    botReply.textContent = "Để biết thêm chi tiết, bạn có thể tìm kiếm thông tin trên Internet.";
-                } else {
-                    botReply.textContent = 'Xin lỗi, tôi không thể tìm thấy thông tin này.';
-                }
-            } else {
-                botReply.textContent = 'Có lỗi xảy ra khi kết nối. Vui lòng thử lại sau.';
-            }
-
-            chatContent.appendChild(botReply);
-            chatContent.scrollTop = chatContent.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-            chatContent.removeChild(typingIndicator);
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Có lỗi xảy ra trong quá trình kết nối.';
-            chatContent.appendChild(errorMessage);
-            chatContent.scrollTop = chatContent.scrollHeight;
-        }
-    });
-
-    // Tự động gửi khi nhấn Enter
-    document.getElementById('user_input').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            document.getElementById('send_button').click();
-        }
-    });
+    }
+});
 </script>
 </body>
 </html>
