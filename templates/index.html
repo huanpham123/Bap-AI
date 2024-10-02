@@ -228,43 +228,42 @@
             if (response.ok) {
                 const responseText = data.result || 'Không có phản hồi.';
 
-                // Kiểm tra xem phản hồi có chứa mã hay không
-                if (responseText.startsWith('```python')) {
+                // Kiểm tra xem người dùng có yêu cầu vẽ không
+                if (userInput.toLowerCase().includes('vẽ')) {
+                    // Vẽ hình đơn giản (ví dụ hình tròn) trong canvas
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = 'blue';
+                    ctx.beginPath();
+                    ctx.arc(100, 100, 80, 0, Math.PI * 2, true); // Vẽ hình tròn
+                    ctx.fill();
+
+                    botReply.appendChild(canvas); // Thêm canvas vào tin nhắn
+                } else if (responseText.startsWith('```python')) {
                     // Loại bỏ dấu ``` và tạo phần tử <pre> và <code> cho mã Python
                     const codeBlock = document.createElement('pre');
                     codeBlock.className = 'code-container';
-                    const codeElement = document.createElement('code');
-                    codeElement.className = 'language-python';
-
-                    // Lấy nội dung mã và loại bỏ dấu ```
-                    codeElement.textContent = responseText.replace(/```python/g, '').replace(/```/g, '').trim();
-
-                    codeBlock.appendChild(codeElement);
-                    botReply.innerHTML = emoji + codeBlock.outerHTML; // Sử dụng HTML cho khối mã
+                    codeBlock.innerHTML = `<code class="language-python">${responseText.replace(/```python/g, '').replace(/```/g, '')}</code>`;
+                    Prism.highlightElement(codeBlock.firstElementChild); // Highlight code
+                    botReply.appendChild(codeBlock);
                 } else {
-                    // Thay thế các từ cần nhấn mạnh bằng class highlight
-                    const highlightedResponse = responseText.replace(/(\*\*.*?\*\*)/g, '<span class="highlight">$1</span>').replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
-                    botReply.innerHTML = emoji + highlightedResponse; // Sử dụng HTML cho phản hồi
+                    botReply.textContent = emoji + responseText;
                 }
             } else {
-                botReply.textContent = emoji + '😟 Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+                botReply.textContent = emoji + 'Có lỗi xảy ra khi nhận phản hồi từ bot.';
             }
+
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
         } catch (error) {
-            chatContent.removeChild(typingIndicator);
+            console.error(error);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.innerHTML = '😟 Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
-        }
-    });
-
-    document.getElementById('user_input').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            document.getElementById('send_button').click();
         }
     });
     </script>
