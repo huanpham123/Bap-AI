@@ -20,7 +20,7 @@
         }
 
         .chat-container {
-            width: 90%; /* Thay đổi thành 90% */
+            width: 90%;
             max-width: 800px;
             height: 90vh;
             display: flex;
@@ -30,7 +30,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(20px);
             overflow: hidden;
-            transition: all 0.3s ease; /* Thêm hiệu ứng chuyển tiếp */
+            transition: all 0.3s ease;
         }
 
         .chat-header {
@@ -88,8 +88,8 @@
         }
 
         .highlight {
-            color: #ffcc00; /* Màu nhấn mạnh */
-            font-weight: bold; /* Nhấn mạnh bằng chữ đậm */
+            color: #ffcc00;
+            font-weight: bold;
         }
 
         .code-container {
@@ -160,7 +160,6 @@
             100% { opacity: 0.5; }
         }
 
-        /* Responsive styles */
         @media (max-width: 600px) {
             .chat-header h1 {
                 font-size: 20px;
@@ -199,58 +198,60 @@
             return;
         }
 
-        // Tạo tin nhắn của người dùng
         const userMessage = document.createElement('div');
         userMessage.className = 'message user';
         userMessage.textContent = userInput;
         chatContent.appendChild(userMessage);
         chatContent.scrollTop = chatContent.scrollHeight;
 
-        // Xóa nội dung ô nhập liệu
         document.getElementById('user_input').value = '';
 
-        // Hiển thị chỉ báo đang gõ
         const typingIndicator = document.createElement('div');
         typingIndicator.className = 'typing';
         typingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
         chatContent.appendChild(typingIndicator);
         chatContent.scrollTop = chatContent.scrollHeight;
 
-        // Gọi API
         try {
             const response = await fetch(`https://deku-rest-api.gleeze.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=unique_id`, {
-                method: 'GET', // Thay đổi thành GET
+                method: 'GET',
             });
 
-            // Xóa chỉ báo đang gõ
             chatContent.removeChild(typingIndicator);
 
-            // Xử lý phản hồi
             const data = await response.json();
             const botReply = document.createElement('div');
             botReply.className = 'message bot';
 
             if (response.ok) {
-                // Thay thế các từ cần nhấn mạnh với lớp highlight
-                botReply.innerHTML = data.result.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>') || 'Không có phản hồi.';
+                const responseText = data.result || 'Không có phản hồi.';
+                // Kiểm tra xem phản hồi có chứa mã hay không
+                if (responseText.startsWith('```python')) {
+                    // Tạo phần tử <pre> và <code> cho mã Python
+                    const codeBlock = document.createElement('pre');
+                    codeBlock.className = 'code-container';
+                    const codeElement = document.createElement('code');
+                    codeElement.className = 'language-python';
+                    codeElement.textContent = responseText.replace(/```python/g, '').replace(/```/g, '').trim();
+                    codeBlock.appendChild(codeElement);
+                    botReply.innerHTML = codeBlock.outerHTML; // Sử dụng nội dung HTML của codeBlock
+                } else {
+                    botReply.innerHTML = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+                }
             } else {
-                botReply.textContent = `Lỗi: ${data.error || 'Có lỗi xảy ra.'}`;
+                botReply.textContent = 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             }
-
-            // Hiển thị câu hỏi và câu trả lời
-            const questionMessage = document.createElement('div');
-            questionMessage.className = 'message user';
-            questionMessage.textContent = userInput;
-            chatContent.appendChild(questionMessage);
 
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
+
+            // Thực hiện tô màu cú pháp bằng Prism.js
+            Prism.highlightElement(botReply.querySelector('code'));
         } catch (error) {
-            console.error('Error:', error);
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
+            errorMessage.textContent = 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
         }
