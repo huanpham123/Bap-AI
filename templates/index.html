@@ -234,54 +234,44 @@
                 const responseText = data.result || 'Không có phản hồi.';
 
                 // Kiểm tra xem người dùng có yêu cầu vẽ không
-                if (userInput.toLowerCase().includes('vẽ')) {
-                    const prompt = userInput.replace('vẽ', '').trim();
+                if (userInput.toLowerCase().includes("vẽ")) {
+                    // Gửi yêu cầu đến API vẽ hình ảnh
                     const drawingResponse = await fetch('https://your_drawing_api_endpoint', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            size: "1024x1792",
-                            prompt: prompt
-                        }),
+                        body: JSON.stringify({ prompt: userInput }) // Thay đổi cấu trúc body theo yêu cầu API của bạn
                     });
 
                     if (drawingResponse.ok) {
-                        const imageData = await drawingResponse.json();
-                        const imageUrl = imageData.url; // Giả sử API trả về URL của hình ảnh
-
+                        const drawingData = await drawingResponse.json();
+                        const imageUrl = drawingData.imageUrl; // Thay đổi theo cấu trúc dữ liệu trả về từ API của bạn
                         const img = document.createElement('img');
                         img.src = imageUrl;
-                        img.alt = 'Hình ảnh được vẽ';
-                        img.style.maxWidth = '100%'; // Đảm bảo hình ảnh không vượt quá chiều rộng của khung chat
-                        img.style.borderRadius = '10px'; // Bo góc hình ảnh
-
-                        botReply.innerHTML = emoji; // Biểu tượng cảm xúc cho bot
+                        img.alt = 'Hình ảnh vẽ';
+                        img.style.maxWidth = '100%';
+                        img.style.borderRadius = '10px';
                         botReply.appendChild(img);
                     } else {
-                        botReply.textContent = `${emoji} Tôi không thể vẽ được. Vui lòng thử lại.`;
+                        botReply.textContent = emoji + "Không thể tạo hình ảnh.";
                     }
                 } else {
-                    botReply.textContent = `${emoji} ${responseText}`;
+                    botReply.textContent = emoji + responseText;
                 }
-
             } else {
-                botReply.textContent = `${emoji} Đã xảy ra lỗi: ${data.message}`;
+                botReply.textContent = emoji + "Đã có lỗi xảy ra.";
             }
-
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
-
         } catch (error) {
-            console.error('Error fetching response:', error);
-        }
-    });
-
-    document.getElementById('user_input').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            document.getElementById('send_button').click();
+            console.error('Lỗi:', error);
+            chatContent.removeChild(typingIndicator);
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'message bot';
+            errorMessage.textContent = "Đã xảy ra lỗi khi gửi yêu cầu.";
+            chatContent.appendChild(errorMessage);
+            chatContent.scrollTop = chatContent.scrollHeight;
         }
     });
     </script>
