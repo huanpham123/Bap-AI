@@ -237,6 +237,12 @@
                 botReply.textContent = `Lỗi: ${data.error || 'Có lỗi xảy ra.'}`;
             }
 
+            // Hiển thị câu hỏi và câu trả lời
+            const questionMessage = document.createElement('div');
+            questionMessage.className = 'message user';
+            questionMessage.textContent = userInput;
+            chatContent.appendChild(questionMessage);
+
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
         } catch (error) {
@@ -244,7 +250,7 @@
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Có lỗi xảy ra trong quá trình kết nối.';
+            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
         }
