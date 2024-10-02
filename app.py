@@ -25,7 +25,9 @@ def chat():
         api_base_url = "https://deku-rest-api.gleeze.com/api/gpt-4o"
         
         # Tạo URL API với message đã được mã hóa
-        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"  # Thay đổi uid nếu cần
+        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"
+
+        app.logger.debug(f"API URL: {api_url}")  # Ghi lại URL gọi API
 
         try:
             # Gọi API và nhận phản hồi với timeout
@@ -37,6 +39,7 @@ def chat():
             if response.status_code == 200:
                 try:
                     response_data = response.json()
+                    app.logger.debug(f"Response Data: {response_data}")  # Ghi lại dữ liệu phản hồi
                     return jsonify({'reply': response_data.get('result', 'No answer provided')})
                 except ValueError:
                     app.logger.error("Invalid JSON response from API.")
@@ -52,6 +55,7 @@ def chat():
             return jsonify({'error': 'Error connecting to the API.'})
 
     return jsonify({'error': 'No message provided'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
