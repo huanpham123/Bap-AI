@@ -173,13 +173,6 @@
             }
         }
 
-        .icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-
     </style>
 </head>
 <body>
@@ -188,7 +181,7 @@
             <h1>ChatBot AI</h1>
         </div>
         <div class="chat-content" id="chat-content">
-            <div class="message bot"><img src="icon.png" class="icon" alt="Icon">Chào! Tôi có thể giúp gì cho bạn?</div>
+            <div class="message bot">😊 Chào! Tôi có thể giúp gì cho bạn?</div>
         </div>
         <div class="chat-input-container">
             <textarea id="user_input" placeholder="Gửi câu hỏi cho Chat" class="input-box"></textarea>
@@ -230,7 +223,7 @@
             const data = await response.json();
             const botReply = document.createElement('div');
             botReply.className = 'message bot';
-            const icon = '<img src="icon.png" class="icon" alt="Icon">';
+            const emoji = '🤖 '; // Biểu tượng cảm xúc cho bot
 
             if (response.ok) {
                 const responseText = data.result || 'Không có phản hồi.';
@@ -247,12 +240,12 @@
                     codeElement.textContent = responseText.replace(/```python/g, '').replace(/```/g, '').trim();
 
                     codeBlock.appendChild(codeElement);
-                    botReply.innerHTML = icon + codeBlock.outerHTML; // Sử dụng HTML cho khối mã
+                    botReply.innerHTML = emoji + codeBlock.outerHTML; // Sử dụng HTML cho khối mã
                 } else {
-                    botReply.innerHTML = icon + responseText;
+                    botReply.innerHTML = emoji + responseText;
                 }
             } else {
-                botReply.innerHTML = icon + 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+                botReply.innerHTML = emoji + 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             }
 
             chatContent.appendChild(botReply);
@@ -263,7 +256,7 @@
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.innerHTML = `<img src="icon.png" class="icon" alt="Icon">Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.`;
+            errorMessage.innerHTML = '😟 Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
         }
