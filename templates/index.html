@@ -172,6 +172,14 @@
                 font-size: 14px;
             }
         }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 <body>
@@ -180,7 +188,7 @@
             <h1>ChatBot AI</h1>
         </div>
         <div class="chat-content" id="chat-content">
-            <div class="message bot">Chào! Tôi có thể giúp gì cho bạn?</div>
+            <div class="message bot"><img src="icon.png" class="icon" alt="Icon">Chào! Tôi có thể giúp gì cho bạn?</div>
         </div>
         <div class="chat-input-container">
             <textarea id="user_input" placeholder="Gửi câu hỏi cho Chat" class="input-box"></textarea>
@@ -222,6 +230,7 @@
             const data = await response.json();
             const botReply = document.createElement('div');
             botReply.className = 'message bot';
+            const icon = '<img src="icon.png" class="icon" alt="Icon">';
 
             if (response.ok) {
                 const responseText = data.result || 'Không có phản hồi.';
@@ -238,28 +247,32 @@
                     codeElement.textContent = responseText.replace(/```python/g, '').replace(/```/g, '').trim();
 
                     codeBlock.appendChild(codeElement);
-                    botReply.innerHTML = codeBlock.outerHTML; // Sử dụng HTML cho khối mã
+                    botReply.innerHTML = icon + codeBlock.outerHTML; // Sử dụng HTML cho khối mã
                 } else {
-                    botReply.textContent = responseText;
+                    botReply.innerHTML = icon + responseText;
                 }
             } else {
-                botReply.textContent = 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+                botReply.innerHTML = icon + 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             }
 
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
 
-            // Thực hiện tô màu cú pháp bằng Prism.js
-            if (codeElement) {
-                Prism.highlightElement(codeElement);
-            }
         } catch (error) {
+            console.error('Error:', error);
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+            errorMessage.innerHTML = `<img src="icon.png" class="icon" alt="Icon">Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.`;
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
+        }
+    });
+
+    document.getElementById('user_input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            document.getElementById('send_button').click();
         }
     });
     </script>
