@@ -88,8 +88,11 @@
         }
 
         .highlight {
-            color: #ffcc00;
+            color: #ffcc00; /* Màu nhấn mạnh */
             font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.3); /* Nền sáng cho từ nhấn mạnh */
+            border-radius: 5px;
+            padding: 2px 4px; /* Tạo khoảng cách cho từ nhấn mạnh */
         }
 
         .code-container {
@@ -242,17 +245,16 @@
                     codeBlock.appendChild(codeElement);
                     botReply.innerHTML = emoji + codeBlock.outerHTML; // Sử dụng HTML cho khối mã
                 } else {
-                    botReply.innerHTML = emoji + responseText;
+                    // Thay thế các từ cần nhấn mạnh bằng class highlight
+                    const highlightedResponse = responseText.replace(/(\*\*.*?\*\*)/g, '<span class="highlight">$1</span>').replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+                    botReply.innerHTML = emoji + highlightedResponse; // Sử dụng HTML cho phản hồi
                 }
             } else {
-                botReply.innerHTML = emoji + 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
+                botReply.textContent = emoji + '😟 Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
             }
-
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
-
         } catch (error) {
-            console.error('Error:', error);
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
