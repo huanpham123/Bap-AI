@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import logging
-import os
-import urllib.parse
+import urllib.parse  # Import urllib.parse để mã hóa URL
 
 app = Flask(__name__)
 
@@ -29,8 +28,8 @@ def chat():
         api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"  # Thay đổi uid nếu cần
 
         try:
-            # Gọi API và nhận phản hồi
-            response = requests.get(api_url)
+            # Gọi API và nhận phản hồi với timeout
+            response = requests.get(api_url, timeout=10)
 
             # Log phản hồi từ API
             app.logger.debug(f"API Response: {response.text}")
@@ -45,6 +44,9 @@ def chat():
             else:
                 app.logger.error(f"API returned an error: {response.status_code} {response.text}")
                 return jsonify({'error': f'API error: {response.status_code}'})
+        except requests.exceptions.Timeout:
+            app.logger.error("Request timed out.")
+            return jsonify({'error': 'Request timed out. Please try again.'})
         except requests.exceptions.RequestException as e:
             app.logger.error(f"Request failed: {str(e)}")
             return jsonify({'error': 'Error connecting to the API.'})
