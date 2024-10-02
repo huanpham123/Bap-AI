@@ -89,14 +89,14 @@
 
         .highlight {
             color: #ffcc00; /* Màu nhấn mạnh */
-            font-weight: normal; /* Không in đậm */
-            text-shadow: 1px 1px 5px rgba(255, 204, 0, 0.6); /* Hiệu ứng bóng cho chữ */
+            font-weight: bold; /* In đậm */
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3), 4px 4px 5px rgba(255, 204, 0, 0.6); /* Hiệu ứng chữ nổi */
         }
 
         .highlight-green {
             color: green; /* Màu xanh lá cho từ cần nhấn mạnh */
-            font-weight: bold; /* Có thể in đậm nếu cần */
-            text-shadow: 1px 1px 5px rgba(0, 255, 0, 0.6); /* Hiệu ứng bóng cho chữ */
+            font-weight: bold; /* In đậm */
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3), 4px 4px 5px rgba(0, 255, 0, 0.6); /* Hiệu ứng chữ nổi */
         }
 
         .code-container {
@@ -244,8 +244,9 @@
 
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
+
         } catch (error) {
-            console.error(error);
+            chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
             errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại.';
