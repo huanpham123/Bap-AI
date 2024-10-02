@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import logging
 import os
-import urllib.parse  # Import urllib.parse để mã hóa URL
+import urllib.parse
 
 app = Flask(__name__)
 
@@ -22,9 +22,12 @@ def chat():
         # Mã hóa URL cho message
         encoded_message = urllib.parse.quote(message)
         
-        # Lấy URL API từ biến môi trường hoặc giá trị mặc định
-        api_url = os.getenv('API_URL', f"https://deku-rest-api.gleeze.com/api/gpt-4o?q={encoded_message}&uid=unique_id")
+        # Phần URL cố định của API
+        api_base_url = "https://deku-rest-api.gleeze.com/api/gpt-4o"
         
+        # Tạo URL API với message đã được mã hóa
+        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"  # Thay đổi uid nếu cần
+
         try:
             # Gọi API và nhận phản hồi
             response = requests.get(api_url)
