@@ -1,30 +1,29 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import logging
-import os  # Import os để sử dụng biến môi trường
+import os
+import urllib.parse  # Import urllib.parse để mã hóa URL
 
 app = Flask(__name__)
 
 # Enable logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Route để render HTML
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Route xử lý API request cho câu hỏi văn bản
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
     message = data.get('message')
 
     if message:
-        # Lấy URL cơ bản từ biến môi trường
-        base_api_url = os.getenv('API_URL', "https://deku-rest-api.gleeze.com/api/gpt-4o")
+        # Mã hóa URL cho message
+        encoded_message = urllib.parse.quote(message)
         
-        # Tạo URL đầy đủ với message và uid
-        api_url = f"{base_api_url}?q={message}&uid=unique_id"
+        # Lấy URL API từ biến môi trường hoặc giá trị mặc định
+        api_url = os.getenv('API_URL', f"https://deku-rest-api.gleeze.com/api/gpt-4o?q={encoded_message}&uid=unique_id")
         
         try:
             # Gọi API và nhận phản hồi
@@ -33,7 +32,6 @@ def chat():
             # Log phản hồi từ API
             app.logger.debug(f"API Response: {response.text}")
 
-            # Kiểm tra mã trạng thái phản hồi
             if response.status_code == 200:
                 try:
                     response_data = response.json()
