@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import logging
-import urllib.parse
-import time  # Import time để theo dõi thời gian
+import urllib.parse  # Import urllib.parse để mã hóa URL
 
 app = Flask(__name__)
 
@@ -21,24 +20,18 @@ def chat():
     if message:
         # Mã hóa URL cho message
         encoded_message = urllib.parse.quote(message)
-
+        
         # Phần URL cố định của API
         api_base_url = "https://deku-rest-api.gleeze.com/api/gpt-4o"
-
+        
         # Tạo URL API với message đã được mã hóa
-        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"
-
-        app.logger.debug(f"API URL: {api_url}")
-
-        # Thông báo cho người dùng biết rằng yêu cầu đang được xử lý
-        app.logger.info("Processing your request, please wait...")
+        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"  # Thay đổi uid nếu cần
 
         try:
-            start_time = time.time()
-            response = requests.get(api_url, timeout=15)
-            elapsed_time = time.time() - start_time
+            # Gọi API và nhận phản hồi với timeout
+            response = requests.get(api_url, timeout=10)
 
-            app.logger.debug(f"Time taken for API response: {elapsed_time} seconds")
+            # Log phản hồi từ API
             app.logger.debug(f"API Response: {response.text}")
 
             if response.status_code == 200:
