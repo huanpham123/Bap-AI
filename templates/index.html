@@ -165,19 +165,6 @@
             100% { opacity: 0.5; }
         }
 
-        .image-container {
-            margin-top: 15px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
-
         @media (max-width: 600px) {
             .chat-header h1 {
                 font-size: 20px;
@@ -190,6 +177,7 @@
                 font-size: 14px;
             }
         }
+
     </style>
 </head>
 <body>
@@ -231,59 +219,37 @@
         chatContent.scrollTop = chatContent.scrollHeight;
 
         try {
-            // Kiểm tra xem người dùng có yêu cầu vẽ hình không
-            const isDrawingRequest = userInput.toLowerCase().includes('vẽ hình');
+            const response = await fetch(`https://deku-rest-api.gleeze.com/api/gpt-4o?q=${encodeURIComponent(userInput)}&uid=unique_id`, {
+                method: 'GET',
+            });
 
-            if (isDrawingRequest) {
-                const drawingResponse = await fetch('https://deku-rest-api.gleeze.com/canvas/paint?uid=4', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        prompt: userInput, // Dữ liệu bạn muốn vẽ
-                    }),
-                });
+            chatContent.removeChild(typingIndicator);
 
-                const drawingData = await drawingResponse.json();
+            const data = await response.json();
+            const botReply = document.createElement('div');
+            botReply.className = 'message bot';
+            const emoji = '🤖 '; // Biểu tượng cảm xúc cho bot
 
-                chatContent.removeChild(typingIndicator);
+            if (response.ok) {
+                const responseText = data.result || 'Không có phản hồi.';
 
-                if (drawingResponse.ok) {
-                    const botReply = document.createElement('div');
-                    botReply.className = 'message bot';
-                    const emoji = '🤖 '; // Biểu tượng cảm xúc cho bot
-
-                    // Hiển thị hình ảnh
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'image-container';
-                    const imgElement = document.createElement('img');
-                    imgElement.src = drawingData.imageUrl; // Giả sử API trả về URL của hình ảnh
-                    imageContainer.appendChild(imgElement);
-                    botReply.appendChild(document.createTextNode(emoji + 'Dưới đây là hình bạn yêu cầu:'));
-                    botReply.appendChild(imageContainer);
-
-                    chatContent.appendChild(botReply);
-                } else {
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'message bot';
-                    errorMessage.textContent = 'Đã có lỗi xảy ra khi vẽ hình. Vui lòng thử lại!';
-                    chatContent.appendChild(errorMessage);
-                }
+                // Thay thế từ cần nhấn mạnh bằng lớp highlight
+                const highlightedText = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-green">$1</span>');
+                botReply.innerHTML = emoji + highlightedText; // Sử dụng innerHTML để hiển thị HTML
             } else {
-                const botReply = document.createElement('div');
-                botReply.className = 'message bot';
-                botReply.textContent = 'Tôi không hiểu, bạn có thể yêu cầu tôi vẽ hình không?';
-                chatContent.appendChild(botReply);
+                botReply.textContent = emoji + 'Có lỗi xảy ra khi nhận phản hồi từ bot.';
             }
+
+            chatContent.appendChild(botReply);
+            chatContent.scrollTop = chatContent.scrollHeight;
         } catch (error) {
+            console.error(error);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Đã có lỗi xảy ra. Vui lòng thử lại!';
+            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
+            chatContent.scrollTop = chatContent.scrollHeight;
         }
-
-        chatContent.scrollTop = chatContent.scrollHeight;
     });
     </script>
 </body>
