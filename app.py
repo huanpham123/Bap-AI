@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import requests
 import logging
 import urllib.parse
+import time  # Import time để theo dõi thời gian
 
 app = Flask(__name__)
 
@@ -30,8 +31,12 @@ def chat():
         app.logger.debug(f"API URL: {api_url}")
 
         try:
-            # Gọi API và nhận phản hồi với timeout
-            response = requests.get(api_url, timeout=15)  # Tăng timeout
+            start_time = time.time()  # Ghi lại thời gian bắt đầu
+            response = requests.get(api_url, timeout=15)  # Thời gian timeout
+            elapsed_time = time.time() - start_time  # Tính thời gian đã trôi qua
+            
+            # Log thời gian phản hồi
+            app.logger.debug(f"Time taken for API response: {elapsed_time} seconds")
 
             # Log phản hồi từ API
             app.logger.debug(f"API Response: {response.text}")
@@ -39,7 +44,6 @@ def chat():
             if response.status_code == 200:
                 try:
                     response_data = response.json()
-                    app.logger.debug(f"Response Data: {response_data}")
                     return jsonify({'reply': response_data.get('result', 'No answer provided')})
                 except ValueError:
                     app.logger.error("Invalid JSON response from API.")
