@@ -21,24 +21,24 @@ def chat():
     if message:
         # Mã hóa URL cho message
         encoded_message = urllib.parse.quote(message)
-        
+
         # Phần URL cố định của API
         api_base_url = "https://deku-rest-api.gleeze.com/api/gpt-4o"
-        
+
         # Tạo URL API với message đã được mã hóa
         api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"
 
         app.logger.debug(f"API URL: {api_url}")
 
-        try:
-            start_time = time.time()  # Ghi lại thời gian bắt đầu
-            response = requests.get(api_url, timeout=15)  # Thời gian timeout
-            elapsed_time = time.time() - start_time  # Tính thời gian đã trôi qua
-            
-            # Log thời gian phản hồi
-            app.logger.debug(f"Time taken for API response: {elapsed_time} seconds")
+        # Thông báo cho người dùng biết rằng yêu cầu đang được xử lý
+        app.logger.info("Processing your request, please wait...")
 
-            # Log phản hồi từ API
+        try:
+            start_time = time.time()
+            response = requests.get(api_url, timeout=15)
+            elapsed_time = time.time() - start_time
+
+            app.logger.debug(f"Time taken for API response: {elapsed_time} seconds")
             app.logger.debug(f"API Response: {response.text}")
 
             if response.status_code == 200:
