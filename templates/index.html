@@ -233,24 +233,9 @@
             if (response.ok) {
                 const responseText = data.result || 'Không có phản hồi.';
 
-                // Kiểm tra xem người dùng có yêu cầu vẽ không
-                if (userInput.toLowerCase().includes('vẽ')) {
-                    // Vẽ hình đơn giản (ví dụ hình tròn) trong canvas
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 200;
-                    canvas.height = 200;
-                    const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = 'blue';
-                    ctx.beginPath();
-                    ctx.arc(100, 100, 80, 0, Math.PI * 2, true); // Vẽ hình tròn
-                    ctx.fill();
-
-                    botReply.appendChild(canvas); // Thêm canvas vào tin nhắn
-                } else {
-                    // Thay thế từ cần nhấn mạnh bằng lớp highlight
-                    const highlightedText = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-green">$1</span>');
-                    botReply.innerHTML = emoji + highlightedText; // Sử dụng innerHTML để hiển thị HTML
-                }
+                // Thay thế từ cần nhấn mạnh bằng lớp highlight
+                const highlightedText = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-green">$1</span>');
+                botReply.innerHTML = emoji + highlightedText; // Sử dụng innerHTML để hiển thị HTML
             } else {
                 botReply.textContent = emoji + 'Có lỗi xảy ra khi nhận phản hồi từ bot.';
             }
