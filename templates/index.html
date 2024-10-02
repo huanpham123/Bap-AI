@@ -92,6 +92,11 @@
             font-weight: normal; /* Không in đậm */
         }
 
+        .highlight-green {
+            color: green; /* Màu xanh lá cho từ cần nhấn mạnh */
+            font-weight: bold; /* Có thể in đậm nếu cần */
+        }
+
         .code-container {
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
@@ -241,15 +246,10 @@
                     ctx.fill();
 
                     botReply.appendChild(canvas); // Thêm canvas vào tin nhắn
-                } else if (responseText.startsWith('```python')) {
-                    // Loại bỏ dấu ``` và tạo phần tử <pre> và <code> cho mã Python
-                    const codeBlock = document.createElement('pre');
-                    codeBlock.className = 'code-container';
-                    codeBlock.innerHTML = `<code class="language-python">${responseText.replace(/```python/g, '').replace(/```/g, '')}</code>`;
-                    Prism.highlightElement(codeBlock.firstElementChild); // Highlight code
-                    botReply.appendChild(codeBlock);
                 } else {
-                    botReply.textContent = emoji + responseText;
+                    // Thay thế từ cần nhấn mạnh bằng lớp highlight
+                    const highlightedText = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-green">$1</span>');
+                    botReply.innerHTML = emoji + highlightedText; // Sử dụng innerHTML để hiển thị HTML
                 }
             } else {
                 botReply.textContent = emoji + 'Có lỗi xảy ra khi nhận phản hồi từ bot.';
