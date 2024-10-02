@@ -89,14 +89,12 @@
 
         .highlight {
             color: #ffcc00; /* Màu nhấn mạnh */
-            font-weight: bold; /* In đậm */
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3), 4px 4px 5px rgba(255, 204, 0, 0.6); /* Hiệu ứng chữ nổi */
+            font-weight: normal; /* Không in đậm */
         }
 
         .highlight-green {
             color: green; /* Màu xanh lá cho từ cần nhấn mạnh */
-            font-weight: bold; /* In đậm */
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3), 4px 4px 5px rgba(0, 255, 0, 0.6); /* Hiệu ứng chữ nổi */
+            font-weight: bold; /* Có thể in đậm nếu cần */
         }
 
         .code-container {
@@ -244,12 +242,11 @@
 
             chatContent.appendChild(botReply);
             chatContent.scrollTop = chatContent.scrollHeight;
-
         } catch (error) {
-            chatContent.removeChild(typingIndicator);
+            console.error(error);
             const errorMessage = document.createElement('div');
             errorMessage.className = 'message bot';
-            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại.';
+            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại sau.';
             chatContent.appendChild(errorMessage);
             chatContent.scrollTop = chatContent.scrollHeight;
         }
