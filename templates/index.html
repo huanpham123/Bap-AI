@@ -225,7 +225,7 @@
 
             if (response.ok) {
                 const responseText = data.result || 'Không có phản hồi.';
-                
+
                 // Kiểm tra xem phản hồi có chứa mã hay không
                 if (responseText.startsWith('```python')) {
                     // Loại bỏ dấu ``` và tạo phần tử <pre> và <code> cho mã Python
@@ -233,14 +233,14 @@
                     codeBlock.className = 'code-container';
                     const codeElement = document.createElement('code');
                     codeElement.className = 'language-python';
-                    
+
                     // Lấy nội dung mã và loại bỏ dấu ```
                     codeElement.textContent = responseText.replace(/```python/g, '').replace(/```/g, '').trim();
-                    
+
                     codeBlock.appendChild(codeElement);
-                    botReply.innerHTML = codeBlock.outerHTML; // Sử dụng nội dung HTML của codeBlock
+                    botReply.innerHTML = codeBlock.outerHTML; // Sử dụng HTML cho khối mã
                 } else {
-                    botReply.innerHTML = responseText.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+                    botReply.textContent = responseText;
                 }
             } else {
                 botReply.textContent = 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.';
@@ -250,7 +250,9 @@
             chatContent.scrollTop = chatContent.scrollHeight;
 
             // Thực hiện tô màu cú pháp bằng Prism.js
-            Prism.highlightElement(botReply.querySelector('code'));
+            if (codeElement) {
+                Prism.highlightElement(codeElement);
+            }
         } catch (error) {
             chatContent.removeChild(typingIndicator);
             const errorMessage = document.createElement('div');
