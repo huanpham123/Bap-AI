@@ -22,10 +22,10 @@ def chat():
         encoded_message = urllib.parse.quote(message)
         
         # Phần URL cố định của API
-        api_base_url = "https://deku-rest-api.gleeze.com/api/gpt-4o"
+        api_base_url = "https://api.hamanhhung.site/ai/gemini?prompt="
         
         # Tạo URL API với message đã được mã hóa
-        api_url = f"{api_base_url}?q={encoded_message}&uid=unique_id"  # Thay đổi uid nếu cần
+        api_url = f"{api_base_url}{encoded_message}"  # Không cần uid nữa
 
         try:
             # Gọi API và nhận phản hồi với timeout
